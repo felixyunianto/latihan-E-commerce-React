@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import { InputGroup, Navbar, FormControl, Modal, Button } from "react-bootstrap";
+import { InputGroup, Navbar, FormControl, Modal, Button, Form, Col, Row } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faFilter } from "@fortawesome/free-solid-svg-icons";
 
@@ -20,7 +20,8 @@ export default class Navbarr extends Component {
   }
 
   handleChange = (e) => {
-    this.setState({keyword : e.target.value})
+    this.setState({ keyword: e.target.value })
+    // console.log(e.target.value);
   }
 
   handleShow = (id) => {
@@ -37,7 +38,7 @@ export default class Navbarr extends Component {
         showModal: false
       }
     })
-    
+
   }
 
   render() {
@@ -76,7 +77,6 @@ export default class Navbarr extends Component {
                 placeholder="Search"
                 aria-label="Search"
                 aria-describedby="basic-addon2"
-                onChange={(e) => {this.handleChange(e)}}
               />
               <InputGroup.Append className="mr-2">
                 <FontAwesomeIcon className="icon-search " icon={faSearch} />
@@ -84,20 +84,20 @@ export default class Navbarr extends Component {
             </InputGroup>
           </div>
           <div className="icon-filter">
-          <Link style={{color: '#9b9b9b'}} onClick={this.handleShow}><FontAwesomeIcon icon={faFilter} /></Link>
+            <Link style={{ color: '#9b9b9b' }} onClick={this.handleShow}><FontAwesomeIcon icon={faFilter} /></Link>
           </div>
           <Link to="/mybag" className="brand">
-          <Navbar.Collapse className="justify-content-end">
-            <img
-              src={
-                "https://res.cloudinary.com/devloops7/image/upload/v1606580439/newBlanja/cart_s7fhsn.png"
-              }
-              style={{ marginRight: "40px", marginLeft: "20px" }}
-              alt=""
-            />
-            <div className="btn-login-nav">Login</div>
-            <div className="btn-signup-nav">Signup</div>
-          </Navbar.Collapse>
+            <Navbar.Collapse className="justify-content-end">
+              <img
+                src={
+                  "https://res.cloudinary.com/devloops7/image/upload/v1606580439/newBlanja/cart_s7fhsn.png"
+                }
+                style={{ marginRight: "40px", marginLeft: "20px" }}
+                alt=""
+              />
+              <div className="btn-login-nav">Login</div>
+              <div className="btn-signup-nav">Signup</div>
+            </Navbar.Collapse>
           </Link>
         </Navbar>
         <Modal show={this.state.showModal} onHide={this.handleEnd}>
@@ -105,13 +105,43 @@ export default class Navbarr extends Component {
             <Modal.Title>Modal heading</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            
+            <Form.Group as={Row}>
+              <Form.Label as="legend" column sm={2}>
+                Filter
+            </Form.Label>
+              <Col sm={10}>
+                <Form.Check
+                  type="radio"
+                  label="Product Name"
+                  name="keyword"
+                  id="formHorizontalRadios1"
+                  value="product_name"
+                  onChange={e => this.handleChange(e)}
+                />
+                <Form.Check
+                  type="radio"
+                  label="Date"
+                  name="keyword"
+                  id="formHorizontalRadios2"
+                  value="created_at DESC"
+                  onChange={e => this.handleChange(e)}
+                />
+                <Form.Check
+                  type="radio"
+                  label="Product Price"
+                  name="keyword"
+                  id="formHorizontalRadios3"
+                  value="product_price"
+                  onChange={e => this.handleChange(e)}
+                />
+              </Col>
+            </Form.Group>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={this.handleEnd}>
               Close
               </Button>
-            <Link variant="primary" to={{pathname: '/filter', state:{keyword: this.state.keyword}}}>Save Changes</Link>
+            <Link variant="primary" to={{ pathname: '/filter', state: { keyword: this.state.keyword } }}>Save Changes</Link>
           </Modal.Footer>
         </Modal>
       </header>

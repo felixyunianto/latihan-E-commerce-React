@@ -21,7 +21,6 @@ export default class Popular extends Component {
       .then((res) => {
         const popularProducts = res.data.data;
         this.setState({ popularProducts });
-        this.intervalID = setTimeout(this.getPopularProducts.bind(this), 2000)
       })
       .catch((err) => err);
   }
@@ -31,12 +30,10 @@ export default class Popular extends Component {
   }
 
   componentDidMount() {
-    this.getPopularProducts()
+    setTimeout(()=> {this.getPopularProducts()},1000)
   }
 
-  componentWillUnmount() {
-    clearTimeout(this.intervalID)
-  }
+  
   render() {
     return (
       <>

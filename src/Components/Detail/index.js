@@ -45,10 +45,11 @@ export default class Detail extends Component {
       dangerMode: true,
     })
       .then((willDelete) => {
-        if (willDelete) {
-          axios.delete(`http://localhost:8005/products/${id}`)
-          window.location = "/"
-        }
+        // if (willDelete) {
+        //   axios.delete(`http://localhost:8005/products/${id}`)
+        //   window.location = "/"
+        // }
+        console.log(this.props);
       });
   }
 

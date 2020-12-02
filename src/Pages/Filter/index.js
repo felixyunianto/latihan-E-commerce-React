@@ -1,15 +1,16 @@
 import React, { Component } from 'react'
 import Filter from "../../Components/Filter";
+import Navbar from "../../Components/Navbar";
+import {Container} from 'react-bootstrap'
+
 
 export default class index extends Component {
-    componentDidMount(props){
-        console.log(this.props.location.state.keyword);
-    }
     render() {
         return (
-            <>
-                <Filter keyword={this.props.location.keyword}/>
-            </>
+            <Container>
+                <Navbar />
+                <Filter keyword={this.props.location.state.keyword}/>
+            </Container>
         )
     }
 }
