@@ -14,11 +14,14 @@ export default class Detail extends Component {
     this.state = {
       size: 0,
       qty: 0,
+      counter: 1,
+      price: parseInt(localStorage.getItem("price")),
+      totalPrice: parseInt(localStorage.getItem("price")),
       showModal: false,
       product_id: null,
-      product_name : '',
-      product_price : '',
-      product_qty : '',
+      product_name: '',
+      product_price: '',
+      product_qty: '',
       product_desc: '',
     };
     this.handleBag = this.handleBag.bind(this);
@@ -27,6 +30,9 @@ export default class Detail extends Component {
     this.handleChange = this.handleChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleDelete = this.handleDelete.bind(this)
+    this.handleCounterPlus = this.handleCounterPlus.bind(this)
+    this.handleCounterMin = this.handleCounterMin.bind(this)
+    this.handleBuy = this.handleBuy.bind(this)
   }
 
   handleDelete = (id) => {
@@ -38,12 +44,12 @@ export default class Detail extends Component {
       buttons: true,
       dangerMode: true,
     })
-    .then((willDelete) => {
-      if (willDelete) {
-        axios.delete(`http://localhost:8005/products/${id}`)
-        window.location = "/"
-      } 
-    });
+      .then((willDelete) => {
+        if (willDelete) {
+          axios.delete(`http://localhost:8005/products/${id}`)
+          window.location = "/"
+        }
+      });
   }
 
   handleShow = (id) => {
@@ -54,18 +60,17 @@ export default class Detail extends Component {
     })
 
     axios.get(`http://localhost:8005/products/${id}`)
-    .then((res) => {
-      this.setState(() => {
-        return {
-          product_id : res.data.data.id,
-          product_name : res.data.data.product_name,
-          product_price : res.data.data.product_price,
-          product_qty : res.data.data.product_qty,
-          product_desc : res.data.data.product_desc,
-        }
+      .then((res) => {
+        this.setState(() => {
+          return {
+            product_id: res.data.data.id,
+            product_name: res.data.data.product_name,
+            product_price: res.data.data.product_price,
+            product_qty: res.data.data.product_qty,
+            product_desc: res.data.data.product_desc,
+          }
+        })
       })
-      // console.log(res.data);
-    })
   }
 
   handleEnd = () => {
@@ -74,7 +79,7 @@ export default class Detail extends Component {
         showModal: false
       }
     })
-    
+
   }
 
   handleBag = () => {
@@ -85,10 +90,10 @@ export default class Detail extends Component {
   };
 
   handleChange = (e) => {
-    this.setState({[e.target.name] : e.target.value})
+    this.setState({ [e.target.name]: e.target.value })
   }
 
-  handleSubmit(){
+  handleSubmit() {
     const url = `http://localhost:8005/products/${this.state.product_id}`
     axios.put(url, {
       product_name: this.state.product_name,
@@ -96,9 +101,42 @@ export default class Detail extends Component {
       product_qty: this.state.product_qty,
       product_desc: this.state.product_desc,
     })
-    .then(response => console.log(response))
-    .catch(err => console.log(err))
+      .then(response => console.log(response))
+      .catch(err => console.log(err))
   }
+
+  handleCounterPlus = () => {
+    this.setState((state) => {
+      return {
+        counter: state.counter + 1,
+        totalPrice: state.totalPrice + state.price
+      }
+    })
+  };
+
+  handleCounterMin = () => {
+    if (this.state.counter === 1) return;
+    this.setState((state) => {
+      return {
+        counter: state.counter - 1,
+        totalPrice: state.totalPrice - state.price
+      }
+    })
+  }
+
+  handleBuy = (id) => {
+    localStorage.setItem("totalPrice", this.state.totalPrice)
+    localStorage.setItem("qty", this.state.counter)
+    localStorage.setItem("photo", this.props.photo);
+    localStorage.setItem("name", this.props.name);
+    localStorage.setItem("price", this.props.price);
+    localStorage.setItem("id", this.props.product)
+  }
+
+
+
+
+
 
   render() {
     const {
@@ -109,7 +147,6 @@ export default class Detail extends Component {
       name,
       photo,
       price,
-      qty,
       size,
       index,
     } = this.props;
@@ -173,10 +210,10 @@ export default class Detail extends Component {
           </div>
           <div className="col-sm-8">
             <div className="d-flex">
-              <Button onClick={() => {this.handleShow(product)}} >
+              <Button onClick={() => { this.handleShow(product) }} >
                 <FontAwesomeIcon className="bintang" icon={faStar} />
               </Button>
-              <Button onClick={() => {this.handleDelete(product)}} >
+              <Button onClick={() => { this.handleDelete(product) }} >
                 <FontAwesomeIcon className="bintang" icon={faMinus} />
               </Button>
               <h3>{name}</h3>
@@ -248,17 +285,17 @@ export default class Detail extends Component {
                 </p>
                 <ul className="horizontal-list d-flex justify-center">
                   <li>
-                    <span className="color-selected rounded-circle bg-secondary">
+                    <button className="color-selected rounded-circle bg-secondary" onClick={this.handleCounterMin}>
                       <FontAwesomeIcon className="minus" icon={faMinus} />
-                    </span>
+                    </button>
                   </li>
                   <li style={{ margin: "0.9rem 1rem" }}>
-                    <span>{qty}</span>
+                    <span>{this.state.counter}</span>
                   </li>
                   <li>
-                    <span className="color-selected rounded-circle">
+                    <button className="color-selected rounded-circle" onClick={this.handleCounterPlus}>
                       <FontAwesomeIcon className="plus" icon={faPlus} />
-                    </span>
+                    </button>
                   </li>
                 </ul>
               </div>
@@ -267,13 +304,17 @@ export default class Detail extends Component {
               <a href className="btnGrup btn-chart mt-2">
                 Chart
               </a>
-              <a href className="btnGrup btn-add-bag mt-2">
-                Add bag
-              </a>
               <Link
                 to="/mybag"
-                className="btnGrup btn-buy mt-2"
+                className="btnGrup btn-add-bag mt-2"
                 onClick={this.handleBag}
+              >
+                Buy Bag
+              </Link>
+              <Link
+                to="/checkout"
+                className="btnGrup btn-buy mt-2"
+                onClick={() => { this.handleBuy(product) }}
               >
                 Buy Now
               </Link>
@@ -392,17 +433,18 @@ export default class Detail extends Component {
           <a href className="btnBtm btn-chart mt-2">
             Chart
           </a>
-          <a href className="btnBtm btn-add-bag mt-2">
-            Add bag
-          </a>
           <Link
             to="/mybag"
-            className="btnBtm btn-buy mt-2"
+            className="btnBtm btn-add mt-2"
             onClick={this.handleBag}
+          > Add Bag</Link>
+          <Link
+            to="/checkout"
+            className="btnBtm btn-buy mt-2"
+            onClick={() => { this.handleBuy(product) }}
           >
-            {" "}
-            Buy Now{" "}
-          </Link>
+            Buy Now
+              </Link>
         </div>
         <Modal show={this.state.showModal} onHide={this.handleEnd}>
           <Modal.Header closeButton>
@@ -412,26 +454,26 @@ export default class Detail extends Component {
             <Form id="form-edit">
               <Form.Group controlId="">
                 <Form.Label>Product Name</Form.Label>
-                <Form.Control type="hidden" placeholder="Enter Product Name" value={product} onChange={e => this.handleChange(e)} name="product_id"/>
-                <Form.Control type="text" placeholder="Enter Product Name" value={this.state.product_name} onChange={e => this.handleChange(e)} name="product_name"/>
+                <Form.Control type="hidden" placeholder="Enter Product Name" value={product} onChange={e => this.handleChange(e)} name="product_id" />
+                <Form.Control type="text" placeholder="Enter Product Name" value={this.state.product_name} onChange={e => this.handleChange(e)} name="product_name" />
                 <Form.Text className="text-muted">
                 </Form.Text>
               </Form.Group>
               <Form.Group controlId="">
                 <Form.Label>Product Price</Form.Label>
-                <Form.Control type="text" placeholder="Enter Product Name" value={this.state.product_price} onChange={e => this.handleChange(e)} name="product_price"/>
+                <Form.Control type="text" placeholder="Enter Product Name" value={this.state.product_price} onChange={e => this.handleChange(e)} name="product_price" />
                 <Form.Text className="text-muted">
                 </Form.Text>
               </Form.Group>
               <Form.Group controlId="">
                 <Form.Label>Product Quantity</Form.Label>
-                <Form.Control type="text" placeholder="Enter Product Name" value={this.state.product_qty} onChange={e => this.handleChange(e)} name="product_qty"/>
+                <Form.Control type="text" placeholder="Enter Product Name" value={this.state.product_qty} onChange={e => this.handleChange(e)} name="product_qty" />
                 <Form.Text className="text-muted">
                 </Form.Text>
               </Form.Group>
               <Form.Group controlId="">
                 <Form.Label>Product Description</Form.Label>
-                <Form.Control type="text" placeholder="Enter Product Name" value={this.state.product_desc} onChange={e => this.handleChange(e)} name="product_desc"/>
+                <Form.Control type="text" placeholder="Enter Product Name" value={this.state.product_desc} onChange={e => this.handleChange(e)} name="product_desc" />
                 <Form.Text className="text-muted">
                 </Form.Text>
               </Form.Group>
@@ -441,7 +483,7 @@ export default class Detail extends Component {
             <Button variant="secondary" onClick={this.handleEnd}>
               Close
               </Button>
-              <Link to="/"onClick={this.handleSubmit} variant="primary">Save Changes</Link>
+            <Link to="/" onClick={this.handleSubmit} variant="primary">Save Changes</Link>
           </Modal.Footer>
         </Modal>
       </Container>

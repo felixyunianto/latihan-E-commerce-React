@@ -26,6 +26,10 @@ export default class Catalog extends Component {
       .catch((err) => err);
   };
 
+  setPrice = (price) => {
+    localStorage.setItem('price', price)
+  }
+
   componentDidMount() {
     this.getAllNewsProducts();
   }
@@ -55,7 +59,7 @@ export default class Catalog extends Component {
           {this.state.productsNews.map((productNew, id,) => {
             return (
               <div key={id} className="card card-catalog">
-                <Link to={`/detail/${productNew.id}`}>
+                <Link to={`/detail/${productNew.id}`} onClick={()=> this.setPrice(productNew.product_price)}>
                   <img
                     src={productNew.product_photo}
                     alt=""

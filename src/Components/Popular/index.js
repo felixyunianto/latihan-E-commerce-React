@@ -26,6 +26,10 @@ export default class Popular extends Component {
       .catch((err) => err);
   }
 
+  setPrice = (price) => {
+    localStorage.setItem('price', price)
+  }
+
   componentDidMount() {
     this.getPopularProducts()
   }
@@ -54,7 +58,7 @@ export default class Popular extends Component {
           {this.state.popularProducts.map((popularProduct, id,) => {
             return (
               <div key={id} className="card card-catalog">
-                <Link to={`/detail/${popularProduct.id}`}>
+                <Link to={`/detail/${popularProduct.id}`} onClick={() => this.setPrice(popularProduct.product_price)}>
                   <img
                     src={popularProduct.product_photo}
                     alt=""

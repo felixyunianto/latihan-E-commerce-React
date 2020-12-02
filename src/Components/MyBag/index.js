@@ -47,7 +47,6 @@ export default class Mybag extends Component {
     const name = localStorage.getItem("name");
     const price = localStorage.getItem("price");
     const photo = localStorage.getItem("photo");
-    console.log(name);
     return (
       <Container className="main">
         <div className="container" style={{ marginTop: "120px" }}>
