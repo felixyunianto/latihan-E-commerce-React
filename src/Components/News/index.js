@@ -7,24 +7,31 @@ import "./style.css";
 import axios from "axios";
 
 export default class Catalog extends Component {
+  intervalID;
+
   state = {
     productsNews: [],
   };
 
-  getAllNewsProducts = () => {
+  getAllNewsProducts = async () => {
     // const url = "https://b2bd74521743.ngrok.io/sorting?keyword=";
     const url = "http://localhost:8005/sorting?keyword=";
-    axios
+    await axios
       .get(url + "created_at DESC")
       .then((res) => {
         const productsNews = res.data.data;
         this.setState({ productsNews });
+        this.intervalID = setTimeout(this.getAllNewsProducts.bind(this), 2000)
       })
       .catch((err) => err);
   };
 
   componentDidMount() {
     this.getAllNewsProducts();
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.intervalID)
   }
 
   render() {
@@ -45,7 +52,7 @@ export default class Catalog extends Component {
         </div>
 
         <div className="row-catalog">
-          {this.state.productsNews.map((productNew, id, ) => {
+          {this.state.productsNews.map((productNew, id,) => {
             return (
               <div key={id} className="card card-catalog">
                 <Link to={`/detail/${productNew.id}`}>

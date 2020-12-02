@@ -2,8 +2,10 @@
 import React, { Component } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar, faPlus, faMinus } from "@fortawesome/free-solid-svg-icons";
-import { Container } from "react-bootstrap";
+import { Container, Modal, Button, Form } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import swal from 'sweetalert'
 import "./style.css";
 
 export default class Detail extends Component {
@@ -12,21 +14,95 @@ export default class Detail extends Component {
     this.state = {
       size: 0,
       qty: 0,
+      showModal: false,
+      product_id: null,
+      product_name : '',
+      product_price : '',
+      product_qty : '',
+      product_desc: '',
     };
-
     this.handleBag = this.handleBag.bind(this);
+    this.handleShow = this.handleShow.bind(this)
+    this.handleEnd = this.handleEnd.bind(this)
+    this.handleChange = this.handleChange.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
+    this.handleDelete = this.handleDelete.bind(this)
+  }
+
+  handleDelete = (id) => {
+
+    swal({
+      title: "Are you sure?",
+      text: "Once deleted, you will not be able to recover it!",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    })
+    .then((willDelete) => {
+      if (willDelete) {
+        axios.delete(`http://localhost:8005/products/${id}`)
+        window.location = "/"
+      } 
+    });
+  }
+
+  handleShow = (id) => {
+    this.setState(() => {
+      return {
+        showModal: true,
+      }
+    })
+
+    axios.get(`http://localhost:8005/products/${id}`)
+    .then((res) => {
+      this.setState(() => {
+        return {
+          product_id : res.data.data.id,
+          product_name : res.data.data.product_name,
+          product_price : res.data.data.product_price,
+          product_qty : res.data.data.product_qty,
+          product_desc : res.data.data.product_desc,
+        }
+      })
+      // console.log(res.data);
+    })
+  }
+
+  handleEnd = () => {
+    this.setState(() => {
+      return {
+        showModal: false
+      }
+    })
+    
   }
 
   handleBag = () => {
-    // console.log(this.props)
     localStorage.setItem("photo", this.props.photo);
     localStorage.setItem("name", this.props.name);
     localStorage.setItem("price", this.props.price);
     localStorage.setItem("id", this.props.product)
   };
 
+  handleChange = (e) => {
+    this.setState({[e.target.name] : e.target.value})
+  }
+
+  handleSubmit(){
+    const url = `http://localhost:8005/products/${this.state.product_id}`
+    axios.put(url, {
+      product_name: this.state.product_name,
+      product_price: this.state.product_price,
+      product_qty: this.state.product_qty,
+      product_desc: this.state.product_desc,
+    })
+    .then(response => console.log(response))
+    .catch(err => console.log(err))
+  }
+
   render() {
     const {
+      product,
       category,
       conditions,
       description,
@@ -96,7 +172,15 @@ export default class Detail extends Component {
             </div>
           </div>
           <div className="col-sm-8">
-            <h3>{name}</h3>
+            <div className="d-flex">
+              <Button onClick={() => {this.handleShow(product)}} >
+                <FontAwesomeIcon className="bintang" icon={faStar} />
+              </Button>
+              <Button onClick={() => {this.handleDelete(product)}} >
+                <FontAwesomeIcon className="bintang" icon={faMinus} />
+              </Button>
+              <h3>{name}</h3>
+            </div>
             <p className="font-p-title ml-1">
               <b>{category}</b>
             </p>
@@ -320,7 +404,48 @@ export default class Detail extends Component {
             Buy Now{" "}
           </Link>
         </div>
+        <Modal show={this.state.showModal} onHide={this.handleEnd}>
+          <Modal.Header closeButton>
+            <Modal.Title>Modal heading</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form id="form-edit">
+              <Form.Group controlId="">
+                <Form.Label>Product Name</Form.Label>
+                <Form.Control type="hidden" placeholder="Enter Product Name" value={product} onChange={e => this.handleChange(e)} name="product_id"/>
+                <Form.Control type="text" placeholder="Enter Product Name" value={this.state.product_name} onChange={e => this.handleChange(e)} name="product_name"/>
+                <Form.Text className="text-muted">
+                </Form.Text>
+              </Form.Group>
+              <Form.Group controlId="">
+                <Form.Label>Product Price</Form.Label>
+                <Form.Control type="text" placeholder="Enter Product Name" value={this.state.product_price} onChange={e => this.handleChange(e)} name="product_price"/>
+                <Form.Text className="text-muted">
+                </Form.Text>
+              </Form.Group>
+              <Form.Group controlId="">
+                <Form.Label>Product Quantity</Form.Label>
+                <Form.Control type="text" placeholder="Enter Product Name" value={this.state.product_qty} onChange={e => this.handleChange(e)} name="product_qty"/>
+                <Form.Text className="text-muted">
+                </Form.Text>
+              </Form.Group>
+              <Form.Group controlId="">
+                <Form.Label>Product Description</Form.Label>
+                <Form.Control type="text" placeholder="Enter Product Name" value={this.state.product_desc} onChange={e => this.handleChange(e)} name="product_desc"/>
+                <Form.Text className="text-muted">
+                </Form.Text>
+              </Form.Group>
+            </Form>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={this.handleEnd}>
+              Close
+              </Button>
+              <Link to="/"onClick={this.handleSubmit} variant="primary">Save Changes</Link>
+          </Modal.Footer>
+        </Modal>
       </Container>
+
     );
   }
 }

@@ -7,25 +7,32 @@ import "./style.css";
 import axios from "axios";
 
 export default class Popular extends Component {
-    state = {
-        popularProducts: []
-    }
+  intervalID
 
-    getPopularProducts = () => {
-        // const url = "https://b2bd74521743.ngrok.io/products/";
-        const url = "http://localhost:8005/products/";
-    axios
+  state = {
+    popularProducts: []
+  }
+
+  getPopularProducts = async () => {
+    // const url = "https://b2bd74521743.ngrok.io/products/";
+    const url = "http://localhost:8005/products/";
+    await axios
       .get(url)
       .then((res) => {
         const popularProducts = res.data.data;
         this.setState({ popularProducts });
+        this.intervalID = setTimeout(this.getPopularProducts.bind(this), 2000)
       })
       .catch((err) => err);
-    }
+  }
 
-    componentDidMount () {
-        this.getPopularProducts()
-    }
+  componentDidMount() {
+    this.getPopularProducts()
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.intervalID)
+  }
   render() {
     return (
       <>
@@ -44,7 +51,7 @@ export default class Popular extends Component {
         </div>
 
         <div className="row-catalog">
-          {this.state.popularProducts.map((popularProduct, id, ) => {
+          {this.state.popularProducts.map((popularProduct, id,) => {
             return (
               <div key={id} className="card card-catalog">
                 <Link to={`/detail/${popularProduct.id}`}>
@@ -68,7 +75,7 @@ export default class Popular extends Component {
             );
           })}
         </div>
-      
+
       </>
     )
   }
